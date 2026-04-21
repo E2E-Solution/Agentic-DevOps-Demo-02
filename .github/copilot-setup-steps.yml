@@ -1,0 +1,26 @@
+# Copilot Cloud Agent — Environment Setup
+#
+# This file configures the environment for the GitHub Copilot coding agent
+# (cloud agent). It runs automatically when Copilot opens a pull request or
+# works on an issue in this repository. The steps below install the tools
+# Copilot needs to validate shell scripts and markdown files.
+#
+# Docs: https://docs.github.com/en/copilot/customizing-copilot/customizing-the-development-environment-for-copilot-coding-agent
+
+steps:
+  - uses: actions/checkout@v4
+
+  - uses: actions/setup-node@v4
+    with:
+      node-version: '22'
+
+  - name: Install tools
+    run: |
+      # Markdown linter (npm-based)
+      npm install --global markdownlint-cli2
+
+      # Shell script linter
+      sudo apt-get update && sudo apt-get install --yes shellcheck
+
+      # Ensure all repository scripts are executable
+      chmod +x scripts/*.sh

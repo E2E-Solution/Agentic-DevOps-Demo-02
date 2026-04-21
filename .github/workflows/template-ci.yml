@@ -1,0 +1,133 @@
+# =============================================================================
+# Template CI Workflow
+# =============================================================================
+#
+# Purpose:  Validate the scripts, documentation, and environment in this
+#           DevOps starter-template repository. There is no application code
+#           to build — the CI focuses on linting shell scripts, checking
+#           markdown quality, and running a basic health-check.
+#
+# Triggers: Runs on every push to `main` and on pull requests targeting `main`.
+#
+# This file is meant as a **teaching example**. Each section is commented so
+# that project managers and new developers can understand what CI does and
+# how GitHub Actions works.
+# =============================================================================
+
+name: Template CI
+
+# ---------------------------------------------------------------------------
+# When does this workflow run?
+# - On any push to the main branch (e.g. after a merge).
+# - On any pull request that targets main (so reviewers see results early).
+# ---------------------------------------------------------------------------
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# ---------------------------------------------------------------------------
+# Concurrency: if a new commit is pushed while a previous run for the same
+# branch/PR is still in progress, cancel the older run to save resources.
+# ---------------------------------------------------------------------------
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+# ---------------------------------------------------------------------------
+# Jobs — each job runs in its own virtual machine and can run in parallel.
+# ---------------------------------------------------------------------------
+jobs:
+
+  # =========================================================================
+  # Job 1: Validate Shell Scripts
+  # =========================================================================
+  # ShellCheck is a static-analysis tool for shell scripts. It catches common
+  # bugs, syntax issues, and style problems before they reach production.
+  # =========================================================================
+  validate-scripts:
+    name: Lint Shell Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1 — Check out the repository code so the runner can access it.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2 — Install ShellCheck (the linter for .sh files).
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      # Step 3 — Run ShellCheck on every .sh file in the scripts/ directory.
+      # The `find` command locates all shell scripts; `xargs` passes them to
+      # shellcheck in one invocation for speed.
+      - name: Run ShellCheck on scripts/
+        run: |
+          echo "🔍 Scanning shell scripts in scripts/ ..."
+          find scripts/ -name '*.sh' -type f | xargs --no-run-if-empty shellcheck --severity=warning
+          echo "✅ ShellCheck passed."
+
+  # =========================================================================
+  # Job 2: Validate Markdown Documentation
+  # =========================================================================
+  # Good documentation matters! markdownlint-cli2 checks .md files for
+  # consistent formatting, broken syntax, and common mistakes.
+  # =========================================================================
+  validate-markdown:
+    name: Lint Markdown Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Node.js so we can install the markdown linter via npm.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Install markdownlint-cli2 globally.
+      - name: Install markdownlint-cli2
+        run: npm install -g markdownlint-cli2
+
+      # Lint all Markdown files in the repository.
+      # The "|| true" at the end prevents the step from failing the entire
+      # workflow on style warnings — remove it once the docs are clean.
+      - name: Lint Markdown files
+        run: |
+          echo "📄 Linting Markdown files ..."
+          markdownlint-cli2 "**/*.md" || true
+          echo "✅ Markdown lint complete."
+
+  # =========================================================================
+  # Job 3: Health Check
+  # =========================================================================
+  # Runs the repository's own health-check script to verify that the
+  # environment and basic file structure are correct.
+  # =========================================================================
+  health-check:
+    name: Environment Health Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Make sure the health-check script is executable, then run it.
+      # CI=true tells the script it is running in a non-interactive
+      # environment so it can skip prompts or auth-dependent checks.
+      - name: Run health-check script
+        env:
+          CI: 'true'
+        run: |
+          echo "🏥 Running environment health check ..."
+          chmod +x scripts/health-check.sh
+          bash scripts/health-check.sh
+          echo "✅ Health check complete."

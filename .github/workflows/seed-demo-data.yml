@@ -1,0 +1,69 @@
+# =============================================================================
+# Seed Demo Data Workflow
+# =============================================================================
+#
+# Purpose:  Populate a fresh repository (created from this template) with
+#           realistic mock data — labels, milestones, issues, and pull
+#           requests — so project managers can demo Agentic DevOps workflows
+#           with GitHub Copilot.
+#
+# Trigger:  Manual only (Actions tab → "Seed Demo Data" → Run workflow).
+#           Choose "seed" to create data or "cleanup" to remove it.
+#
+# What gets created:
+#   • 10 custom labels (priority, status, team)
+#   • 3 milestones (sprints: past, current, future)
+#   • 20 issues (bugs, features, tasks — open/closed, labeled/unlabeled)
+#   • 3 pull requests with sample file changes (feature, bug-fix draft, docs)
+#
+# After seeding, try:  sprint-report · issue-triage · pr-summary · ci-status
+# =============================================================================
+
+name: Seed Demo Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'What would you like to do?'
+        required: true
+        default: 'seed'
+        type: choice
+        options:
+          - seed
+          - cleanup
+
+# ---------------------------------------------------------------------------
+# Permissions needed to create issues, PRs, and push demo branches.
+# ---------------------------------------------------------------------------
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  seed-demo-data:
+    name: ${{ inputs.action == 'seed' && '🌱 Create Demo Data' || '🧹 Remove Demo Data' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run seed-demo-data script
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x scripts/seed-demo-data.sh
+          if [ "${{ inputs.action }}" = "cleanup" ]; then
+            bash scripts/seed-demo-data.sh --cleanup
+          else
+            bash scripts/seed-demo-data.sh
+          fi

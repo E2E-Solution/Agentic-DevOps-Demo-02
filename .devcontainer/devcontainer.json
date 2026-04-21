@@ -1,0 +1,74 @@
+{
+  "name": "Agentic DevOps for Project Managers",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    }
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-github-actions",
+        "GitHub.vscode-pull-request-github",
+        "eamodio.gitlens",
+        "ms-python.python",
+        "yzhang.markdown-all-in-one",
+        "bierner.markdown-preview-github-styles"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.wordWrap": "on",
+        "editor.fontSize": 14,
+        "workbench.startupEditor": "readme",
+        "github.copilot.enable": {
+          "*": true,
+          "markdown": true,
+          "plaintext": true
+        },
+        "files.exclude": {
+          "**/.git": true,
+          "**/.DS_Store": true,
+          "**/node_modules": true
+        }
+      }
+    },
+    "codespaces": {
+      "openFiles": [
+        "README.md"
+      ]
+    }
+  },
+
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb",
+    "storage": "32gb"
+  },
+
+  "remoteEnv": {
+    "AGENTIC_DEVOPS_VERSION": "1.0.0",
+    "COPILOT_CLI_AUTOINSTALL": "true"
+  },
+
+  "forwardPorts": [],
+
+  "portsAttributes": {},
+
+  "containerEnv": {
+    "EDITOR": "code --wait"
+  }
+}
