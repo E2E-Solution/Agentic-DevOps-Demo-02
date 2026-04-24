@@ -5,8 +5,8 @@ class TaskStore {
   private tasks: Map<string, Task> = new Map();
 
   getAll(): Task[] {
-    return Array.from(this.tasks.values()).sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    return Array.from(this.tasks.values()).sort((a, b) =>
+      b.createdAt.localeCompare(a.createdAt)
     );
   }
 
