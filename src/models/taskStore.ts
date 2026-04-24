@@ -54,8 +54,8 @@ class TaskStore {
 
 export const taskStore = new TaskStore();
 
-// Seed data for development/demo purposes (skipped during tests)
-if (process.env.NODE_ENV !== "test") {
+// Seed data for development/demo purposes only
+if (process.env.NODE_ENV === "development") {
   taskStore.create({
     title: "Set up project scaffolding",
     description: "Initialize the Node.js/TypeScript project with Express and configure build tooling.",
