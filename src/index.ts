@@ -8,7 +8,7 @@ app.use(express.json());
 
 // Health check endpoint
 app.get("/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+  res.json({ status: "ok" });
 });
 
 // Start server (only when not imported for testing)
