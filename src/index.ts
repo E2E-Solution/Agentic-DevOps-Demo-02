@@ -1,4 +1,5 @@
 import express from "express";
+import taskRoutes from "./routes/tasks";
 
 const app = express();
 const rawPort = process.env.PORT;
@@ -14,6 +15,9 @@ app.use(express.json());
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
+
+// Task routes
+app.use("/api", taskRoutes);
 
 // Start server (only when not imported for testing)
 if (require.main === module) {
